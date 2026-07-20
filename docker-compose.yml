@@ -51,7 +51,7 @@ services:
       - |
         if [ -z "$(ls -A /var/lib/postgresql/data)" ]; then
           echo "Data directory empty, cloning from master via pg_basebackup..." && \
-          pg_basebackup -h postgres-master -D /var/lib/postgresql/data -U replicator -v -P -R
+          pg_basebackup -d "host=postgres-master port=5432 user=replicator application_name=replica1" -D /var/lib/postgresql/data -v -P -R
         else
           echo "Data directory already initialized, skipping clone"
         fi && \

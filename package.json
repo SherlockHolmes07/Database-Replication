@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "lag-demo": "node scripts/lag-demo.js"
   },
   "keywords": ["express", "nodejs", "replication", "asynchronous"],
   "author": "",

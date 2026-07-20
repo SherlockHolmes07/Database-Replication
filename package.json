@@ -1,0 +1,17 @@
+{
+  "name": "Async Read Replication",
+  "version": "1.0.0",
+  "description": "A simple Node.js application demonstrating asynchronous read replication using Express.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["express", "nodejs", "replication", "asynchronous"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.10.0"
+  }
+}

@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Master Database
+  postgres-master:
+    image: postgres:15
+    container_name: postgres-master
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: myapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - master-data:/var/lib/postgresql/data
+      - ./config/master/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./config/master/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./scripts/master-init.sh:/docker-entrypoint-initdb.d/master-init.sh
+    command:
+      - "postgres"
+      - "-c"
+      - "config_file=/etc/postgresql/postgresql.conf"
+    networks:
+      - replication-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Replica Database
+  postgres-replica:
+    image: postgres:15
+    container_name: postgres-replica
+    user: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGUSER: replicator
+      PGPASSWORD: replicator
+    ports:
+      - "5433:5432"
+    volumes:
+      - replica-data:/var/lib/postgresql/data
+      - ./config/replica/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./config/replica/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./scripts/replica-init.sh:/docker-entrypoint-initdb.d/replica-init.sh
+    command:
+      - "bash"
+      - "-c"
+      - |
+        if [ -z "$(ls -A /var/lib/postgresql/data)" ]; then
+          echo "Data directory empty, cloning from master via pg_basebackup..." && \
+          pg_basebackup -h postgres-master -D /var/lib/postgresql/data -U replicator -v -P -R
+        else
+          echo "Data directory already initialized, skipping clone"
+        fi && \
+        chmod 700 /var/lib/postgresql/data && \
+        exec postgres -c config_file=/etc/postgresql/postgresql.conf
+    depends_on:
+      postgres-master:
+        condition: service_healthy
+    networks:
+      - replication-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  master-data:
+  replica-data:
+
+networks:
+  replication-network:
+    driver: bridge

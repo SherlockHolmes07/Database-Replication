@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose down *)",
+      "Bash(docker-compose up *)",
+      "Bash(docker-compose logs *)",
+      "Bash(docker-compose stop *)",
+      "Bash(docker-compose rm *)",
+      "Bash(docker volume *)",
+      "Bash(docker-compose ps *)",
+      "Bash(npm install *)",
+      "Bash(netstat -ano)",
+      "Bash(powershell -Command \"Get-Process -Id 2720 | Select-Object Id, ProcessName, Path\")"
+    ]
+  }
+}
